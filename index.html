@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio Laguna Craft Beer</title>
+    <style>
+        body { margin: 0; padding: 0; display: flex; font-family: sans-serif; height: 100vh; overflow: hidden; background: #121212; color: white; }
+        #menu-container { width: 75%; height: 100%; border: none; }
+        #scanner-sidebar { width: 25%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); padding: 20px; box-sizing: border-box; text-align: center; }
+        .btn-scan { background: #ff9800; color: black; border: none; padding: 15px 30px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 20px; }
+        .status { margin-top: 15px; font-size: 14px; color: #aaa; }
+    </style>
+</head>
+<body>
+
+    <!-- Lado Esquerdo: Cardápio Digital da Yooga -->
+    <iframe id="menu-container" src="https://menu.yooga.app/sede-lagunacraftbeer/"></iframe>
+
+    <!-- Lado Direito: Painel Fixo de Ativação -->
+    <div id="scanner-sidebar">
+        <h2>Abra sua Comanda 🍻</h2>
+        <p>Para liberar os pedidos, clique no botão abaixo e aponte o QR Code da sua mesa/comanda para a câmera.</p>
+        <button class="btn-scan" onclick="iniciarLeitura()">Escanear Código</button>
+        <div id="status-leitura" class="status">Aguardando validação...</div>
+    </div>
+
+    <script>
+        // Ativa o scanner nativo do Fully Kiosk
+        function iniciarLeitura() {
+            if (typeof fully !== "undefined") {
+                document.getElementById('status-leitura').innerText = "Câmera aberta...";
+                fully.startQrScan();
+            } else {
+                document.getElementById('status-leitura').innerText = "Erro: O arquivo não está rodando dentro do Fully Kiosk.";
+            }
+        }
+
+        // Função que o Fully Kiosk chama automaticamente ao ler o QR Code com sucesso
+        function onQrScanSuccess(result) {
+            document.getElementById('status-leitura').innerText = "Comanda identificada!";
+            
+            // O 'result' trará o link completo gerado pelo QR code da comanda da Yooga
+            if (result.startsWith("http")) {
+                // Atualiza apenas o lado esquerdo com a URL da comanda ativa
+                document.getElementById('menu-container').src = result;
+            } else {
+                alert("Código inválido. Escaneie um QR Code de comanda válido.");
+                document.getElementById('status-leitura').innerText = "Erro no código.";
+            }
+        }
+    </script>
+</body>
+</html>
